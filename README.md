@@ -1,4 +1,4 @@
-# Natural-Language-Processing-NanodegreeProject: Part of Speech Tagging with Hidden Markov Models
+# Natural-Language-Processing-Nanodegree Project
 
 ## Project 1: Part of Speech Tagging with Hidden Markov Models
 
