@@ -13,3 +13,9 @@ Machine translation is a popular topic in research with new papers coming out ev
 In this notebook, you will build a deep neural network that functions as part of an end-to-end machine translation pipeline. Your completed pipeline will accept English text as input and return the French translation.
 
 - [Link to notebook](https://github.com/nguyenduchuyvn/Natural-Language-Processing-Nanodegree/blob/main/Project2/machine_translation.ipynb)
+
+## Project3: DNN Speech Recognizer
+In this notebook, you will build a deep neural network that functions as part of an end-to-end automatic speech recognition (ASR) pipeline!
+
+
+- [Link to notebook](https://github.com/nguyenduchuyvn/Natural-Language-Processing-Nanodegree/blob/main/Project3/vui_notebook.ipynb)
