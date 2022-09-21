@@ -13552,7 +13552,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># %reload_ext autoreload</span>
@@ -14470,11 +14470,15 @@ Epoch 20/20
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># specify the model</span>
-<span class="n">model_end</span> <span class="o">=</span> <span class="n">final_model</span><span class="p">()</span>
+<span class="n">model_end</span> <span class="o">=</span> <span class="n">final_model</span><span class="p">(</span><span class="n">input_dim</span> <span class="o">=</span> <span class="mi">13</span><span class="p">,</span>
+                        <span class="n">filters</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                        <span class="n">kernel_size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+                        <span class="n">units</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>                        
+                        <span class="n">recur_layers</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -14494,23 +14498,39 @@ Epoch 20/20
 <pre>_________________________________________________________________
 Layer (type)                 Output Shape              Param #   
 =================================================================
-the_input (InputLayer)       (None, None, 161)         0         
+the_input (InputLayer)       (None, None, 13)          0         
 _________________________________________________________________
-conv1d (Conv1D)              (None, None, 200)         354400    
+conv1d_1 (Conv1D)            (None, None, 200)         28800     
 _________________________________________________________________
-bidirectional_2 (Bidirection (None, None, 400)         481200    
+dropout_1 (Dropout)          (None, None, 200)         0         
 _________________________________________________________________
-batch_normalization_2 (Batch (None, None, 400)         1600      
+batch_normalization_1 (Batch (None, None, 200)         800       
 _________________________________________________________________
-time_distributed_2 (TimeDist (None, None, 29)          11629     
+bidirectional_1 (Bidirection (None, None, 200)         180600    
 _________________________________________________________________
-dropout_2 (Dropout)          (None, None, 29)          0         
+batch_normalization_2 (Batch (None, None, 200)         800       
+_________________________________________________________________
+dropout_2 (Dropout)          (None, None, 200)         0         
+_________________________________________________________________
+bidirectional_2 (Bidirection (None, None, 200)         180600    
+_________________________________________________________________
+batch_normalization_3 (Batch (None, None, 200)         800       
+_________________________________________________________________
+dropout_3 (Dropout)          (None, None, 200)         0         
+_________________________________________________________________
+time_distributed_1 (TimeDist (None, None, 29)          5829      
+_________________________________________________________________
+dropout_4 (Dropout)          (None, None, 29)          0         
+_________________________________________________________________
+time_distributed_2 (TimeDist (None, None, 29)          870       
+_________________________________________________________________
+dropout_5 (Dropout)          (None, None, 29)          0         
 _________________________________________________________________
 softmax (Activation)         (None, None, 29)          0         
 =================================================================
-Total params: 848,829
-Trainable params: 848,029
-Non-trainable params: 800
+Total params: 399,099
+Trainable params: 397,899
+Non-trainable params: 1,200
 _________________________________________________________________
 None
 </pre>
@@ -14531,13 +14551,16 @@ None
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_model</span><span class="p">(</span><span class="n">input_to_softmax</span><span class="o">=</span><span class="n">model_end</span><span class="p">,</span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="k">import</span> <span class="n">Adam</span>
+<span class="n">train_model</span><span class="p">(</span><span class="n">input_to_softmax</span><span class="o">=</span><span class="n">model_end</span><span class="p">,</span> 
             <span class="n">pickle_path</span><span class="o">=</span><span class="s1">&#39;model_end.pickle&#39;</span><span class="p">,</span> 
             <span class="n">save_model_path</span><span class="o">=</span><span class="s1">&#39;model_end.h5&#39;</span><span class="p">,</span> 
-            <span class="n">spectrogram</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># change to False if you would like to use MFCC features</span>
+            <span class="n">minibatch_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+            <span class="n">epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+            <span class="n">spectrogram</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># change to False if you would like to use MFCC features</span>
 </pre></div>
 
     </div>
@@ -14555,45 +14578,45 @@ None
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Epoch 1/20
-101/101 [==============================] - 191s 2s/step - loss: 275.5054 - val_loss: 231.6349
+101/101 [==============================] - 487s 5s/step - loss: 272.7419 - val_loss: 218.7706
 Epoch 2/20
-101/101 [==============================] - 193s 2s/step - loss: 228.8420 - val_loss: 204.2155
+101/101 [==============================] - 411s 4s/step - loss: 232.7185 - val_loss: 211.2645
 Epoch 3/20
-101/101 [==============================] - 191s 2s/step - loss: 212.2286 - val_loss: 197.9325
+101/101 [==============================] - 409s 4s/step - loss: 220.7351 - val_loss: 196.0681
 Epoch 4/20
-101/101 [==============================] - 190s 2s/step - loss: 198.4789 - val_loss: 174.1862
+101/101 [==============================] - 408s 4s/step - loss: 210.9839 - val_loss: 177.7828
 Epoch 5/20
-101/101 [==============================] - 189s 2s/step - loss: 188.9830 - val_loss: 158.5383
+101/101 [==============================] - 407s 4s/step - loss: 202.9733 - val_loss: 170.7247
 Epoch 6/20
-101/101 [==============================] - 190s 2s/step - loss: 181.9250 - val_loss: 155.8814
+101/101 [==============================] - 405s 4s/step - loss: 196.5667 - val_loss: 158.4832
 Epoch 7/20
-101/101 [==============================] - 187s 2s/step - loss: 175.0115 - val_loss: 151.5639
+101/101 [==============================] - 404s 4s/step - loss: 190.9030 - val_loss: 152.1183
 Epoch 8/20
-101/101 [==============================] - 186s 2s/step - loss: 169.8345 - val_loss: 146.7813
+101/101 [==============================] - 409s 4s/step - loss: 185.6731 - val_loss: 150.0839
 Epoch 9/20
-101/101 [==============================] - 188s 2s/step - loss: 164.4277 - val_loss: 144.9699
+101/101 [==============================] - 405s 4s/step - loss: 181.8273 - val_loss: 144.0915
 Epoch 10/20
-101/101 [==============================] - 190s 2s/step - loss: 160.1965 - val_loss: 144.8946
+101/101 [==============================] - 409s 4s/step - loss: 177.9926 - val_loss: 145.0722
 Epoch 11/20
-101/101 [==============================] - 187s 2s/step - loss: 156.3687 - val_loss: 143.8212
+101/101 [==============================] - 408s 4s/step - loss: 174.8130 - val_loss: 139.4497
 Epoch 12/20
-101/101 [==============================] - 188s 2s/step - loss: 151.6793 - val_loss: 139.3851
+101/101 [==============================] - 406s 4s/step - loss: 171.7435 - val_loss: 140.6679
 Epoch 13/20
-101/101 [==============================] - 188s 2s/step - loss: 148.7814 - val_loss: 143.0145
+101/101 [==============================] - 407s 4s/step - loss: 169.2830 - val_loss: 132.3828
 Epoch 14/20
-101/101 [==============================] - 191s 2s/step - loss: 144.8529 - val_loss: 140.1364
+101/101 [==============================] - 407s 4s/step - loss: 166.7884 - val_loss: 139.2912
 Epoch 15/20
-101/101 [==============================] - 190s 2s/step - loss: 142.1466 - val_loss: 140.6936
+101/101 [==============================] - 409s 4s/step - loss: 164.3812 - val_loss: 136.7333
 Epoch 16/20
-101/101 [==============================] - 190s 2s/step - loss: 138.9623 - val_loss: 138.2707
+101/101 [==============================] - 405s 4s/step - loss: 162.0118 - val_loss: 133.6511
 Epoch 17/20
-101/101 [==============================] - 190s 2s/step - loss: 136.0924 - val_loss: 139.1588
+101/101 [==============================] - 408s 4s/step - loss: 160.1059 - val_loss: 133.0814
 Epoch 18/20
-101/101 [==============================] - 189s 2s/step - loss: 132.9945 - val_loss: 141.9293
+101/101 [==============================] - 407s 4s/step - loss: 157.9862 - val_loss: 130.9099
 Epoch 19/20
-101/101 [==============================] - 190s 2s/step - loss: 130.1349 - val_loss: 143.2930
+101/101 [==============================] - 406s 4s/step - loss: 156.3983 - val_loss: 129.7783
 Epoch 20/20
-101/101 [==============================] - 189s 2s/step - loss: 127.7914 - val_loss: 143.6132
+101/101 [==============================] - 410s 4s/step - loss: 154.8322 - val_loss: 127.9195
 </pre>
 </div>
 </div>
@@ -14614,6 +14637,10 @@ The reasons are given as follows:</p>
 <li>Bidirectional RNN layers is better than SimpleRNN  as I said in the previous discussion</li>
 <li>Dropout helps to reduce overfitting</li>
 <li>Batch normalization layers helps the model to learn faster and more stable</li>
+<li>Apply the idea of recur_layers as model_3 to improve the model's performance.</li>
+<li>Use MFCC to avoid overfitting and better learning because the training data is less and huge number of features with sufficient model capacity could lead to overfit the model.</li>
+<li>The number of units in each layer are selected by trial and error</li>
+<li>I tried Adam optimizer with learning rate = 0.01 but it did not improve the model's performance much</li>
 </ul>
 
 </div>
@@ -14630,7 +14657,7 @@ The reasons are given as follows:</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -14648,7 +14675,7 @@ The reasons are given as follows:</p>
 <span class="sd">        model_path (str): Path to saved acoustic model&#39;s weights</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># load the train and test data</span>
-    <span class="n">data_gen</span> <span class="o">=</span> <span class="n">AudioGenerator</span><span class="p">()</span>
+    <span class="n">data_gen</span> <span class="o">=</span> <span class="n">AudioGenerator</span><span class="p">(</span><span class="n">spectrogram</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">data_gen</span><span class="o">.</span><span class="n">load_train_data</span><span class="p">()</span>
     <span class="n">data_gen</span><span class="o">.</span><span class="n">load_validation_data</span><span class="p">()</span>
     
@@ -14695,12 +14722,16 @@ The reasons are given as follows:</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_predictions</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
                 <span class="n">partition</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">,</span>
-                <span class="n">input_to_softmax</span><span class="o">=</span><span class="n">final_model</span><span class="p">(),</span> 
+                <span class="n">input_to_softmax</span><span class="o">=</span><span class="n">final_model</span><span class="p">(</span><span class="n">input_dim</span> <span class="o">=</span> <span class="mi">13</span><span class="p">,</span>
+                                            <span class="n">filters</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                                            <span class="n">kernel_size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+                                            <span class="n">units</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>                        
+                                            <span class="n">recur_layers</span> <span class="o">=</span> <span class="mi">2</span><span class="p">),</span> 
                 <span class="n">model_path</span><span class="o">=</span><span class="s1">&#39;results/model_end.h5&#39;</span><span class="p">)</span>
 </pre></div>
 
@@ -14721,23 +14752,39 @@ The reasons are given as follows:</p>
 <pre>_________________________________________________________________
 Layer (type)                 Output Shape              Param #   
 =================================================================
-the_input (InputLayer)       (None, None, 161)         0         
+the_input (InputLayer)       (None, None, 13)          0         
 _________________________________________________________________
-conv1d (Conv1D)              (None, None, 200)         354400    
+conv1d_1 (Conv1D)            (None, None, 200)         28800     
 _________________________________________________________________
-bidirectional_2 (Bidirection (None, None, 400)         481200    
+dropout_16 (Dropout)         (None, None, 200)         0         
 _________________________________________________________________
-batch_normalization_2 (Batch (None, None, 400)         1600      
+batch_normalization_10 (Batc (None, None, 200)         800       
 _________________________________________________________________
-time_distributed_2 (TimeDist (None, None, 29)          11629     
+bidirectional_7 (Bidirection (None, None, 200)         180600    
 _________________________________________________________________
-dropout_2 (Dropout)          (None, None, 29)          0         
+batch_normalization_11 (Batc (None, None, 200)         800       
+_________________________________________________________________
+dropout_17 (Dropout)         (None, None, 200)         0         
+_________________________________________________________________
+bidirectional_8 (Bidirection (None, None, 200)         180600    
+_________________________________________________________________
+batch_normalization_12 (Batc (None, None, 200)         800       
+_________________________________________________________________
+dropout_18 (Dropout)         (None, None, 200)         0         
+_________________________________________________________________
+time_distributed_7 (TimeDist (None, None, 29)          5829      
+_________________________________________________________________
+dropout_19 (Dropout)         (None, None, 29)          0         
+_________________________________________________________________
+time_distributed_8 (TimeDist (None, None, 29)          870       
+_________________________________________________________________
+dropout_20 (Dropout)         (None, None, 29)          0         
 _________________________________________________________________
 softmax (Activation)         (None, None, 29)          0         
 =================================================================
-Total params: 848,829
-Trainable params: 848,029
-Non-trainable params: 800
+Total params: 399,099
+Trainable params: 397,899
+Non-trainable params: 1,200
 _________________________________________________________________
 None
 --------------------------------------------------------------------------------
@@ -14747,7 +14794,7 @@ her father is a most remarkable person to say the least
 --------------------------------------------------------------------------------
 Predicted transcription:
 
-er ftere is a mst rmarckaba prind t sey the l
+rfther s a mous rmale prnto sa the l
 --------------------------------------------------------------------------------
 </pre>
 </div>
@@ -14767,12 +14814,16 @@ er ftere is a mst rmarckaba prind t sey the l
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">get_predictions</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
                 <span class="n">partition</span><span class="o">=</span><span class="s1">&#39;validation&#39;</span><span class="p">,</span>
-                <span class="n">input_to_softmax</span><span class="o">=</span><span class="n">final_model</span><span class="p">(),</span> 
+                <span class="n">input_to_softmax</span><span class="o">=</span><span class="n">final_model</span><span class="p">(</span><span class="n">input_dim</span> <span class="o">=</span> <span class="mi">13</span><span class="p">,</span>
+                                            <span class="n">filters</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+                                            <span class="n">kernel_size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+                                            <span class="n">units</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>                        
+                                            <span class="n">recur_layers</span> <span class="o">=</span> <span class="mi">2</span><span class="p">),</span> 
                 <span class="n">model_path</span><span class="o">=</span><span class="s1">&#39;results/model_end.h5&#39;</span><span class="p">)</span>
 </pre></div>
 
@@ -14793,23 +14844,39 @@ er ftere is a mst rmarckaba prind t sey the l
 <pre>_________________________________________________________________
 Layer (type)                 Output Shape              Param #   
 =================================================================
-the_input (InputLayer)       (None, None, 161)         0         
+the_input (InputLayer)       (None, None, 13)          0         
 _________________________________________________________________
-conv1d (Conv1D)              (None, None, 200)         354400    
+conv1d_1 (Conv1D)            (None, None, 200)         28800     
 _________________________________________________________________
-bidirectional_4 (Bidirection (None, None, 400)         481200    
+dropout_21 (Dropout)         (None, None, 200)         0         
 _________________________________________________________________
-batch_normalization_4 (Batch (None, None, 400)         1600      
+batch_normalization_13 (Batc (None, None, 200)         800       
 _________________________________________________________________
-time_distributed_4 (TimeDist (None, None, 29)          11629     
+bidirectional_9 (Bidirection (None, None, 200)         180600    
 _________________________________________________________________
-dropout_4 (Dropout)          (None, None, 29)          0         
+batch_normalization_14 (Batc (None, None, 200)         800       
+_________________________________________________________________
+dropout_22 (Dropout)         (None, None, 200)         0         
+_________________________________________________________________
+bidirectional_10 (Bidirectio (None, None, 200)         180600    
+_________________________________________________________________
+batch_normalization_15 (Batc (None, None, 200)         800       
+_________________________________________________________________
+dropout_23 (Dropout)         (None, None, 200)         0         
+_________________________________________________________________
+time_distributed_9 (TimeDist (None, None, 29)          5829      
+_________________________________________________________________
+dropout_24 (Dropout)         (None, None, 29)          0         
+_________________________________________________________________
+time_distributed_10 (TimeDis (None, None, 29)          870       
+_________________________________________________________________
+dropout_25 (Dropout)         (None, None, 29)          0         
 _________________________________________________________________
 softmax (Activation)         (None, None, 29)          0         
 =================================================================
-Total params: 848,829
-Trainable params: 848,029
-Non-trainable params: 800
+Total params: 399,099
+Trainable params: 397,899
+Non-trainable params: 1,200
 _________________________________________________________________
 None
 --------------------------------------------------------------------------------
@@ -14819,7 +14886,7 @@ the bogus legislature numbered thirty six members
 --------------------------------------------------------------------------------
 Predicted transcription:
 
-he bis lslare nvered r cxe be
+te b is l s lr nober rmr
 --------------------------------------------------------------------------------
 </pre>
 </div>

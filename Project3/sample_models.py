@@ -135,8 +135,8 @@ def bidirectional_rnn_model(input_dim, units, output_dim=29):
     print(model.summary())
     return model
 
-def final_model(input_dim = 161, output_dim=29, filters=200, kernel_size=11, 
-                conv_stride=2, conv_border_mode='valid', units=200):
+def final_model(input_dim, output_dim=29, filters=200, kernel_size=11, 
+                conv_stride=2, conv_border_mode='valid', units=100, recur_layers = 2):
     """ Build a deep network for speech 
     """
     # Main acoustic input
@@ -146,17 +146,32 @@ def final_model(input_dim = 161, output_dim=29, filters=200, kernel_size=11,
                      strides=conv_stride, 
                      padding=conv_border_mode,
                      activation='relu',
-                     name='conv1d')(input_data)
+                     name='conv1d_1')(input_data)
+    conv_1d = Dropout(0.2)(conv_1d)     
+    conv_1d = BatchNormalization()(conv_1d)
+    
+    
     
     # Add a recurrent layer
-    bidir_rnn = Bidirectional(GRU(units, activation="relu",return_sequences=True, 
-                 implementation=2))(conv_1d)
+    bidir_rnn = Bidirectional(GRU(units, activation='relu',
+                                  return_sequences=True, implementation=2))(conv_1d)
     # TODO: Add batch normalization
-    bn_rnn = BatchNormalization()(bidir_rnn)
-    # TODO: Add a TimeDistributed(Dense(output_dim)) layer
-    time_dense = TimeDistributed(Dense(output_dim))(bn_rnn)
+    x = BatchNormalization()(bidir_rnn)
+    x = Dropout(0.2)(x) 
     
-    time_dense = Dropout(0.2)(time_dense)   
+    for i in range(recur_layers- 1):
+        x =  Bidirectional(GRU(units, activation='relu', 
+                               return_sequences=True, implementation=2))(x)     
+        x = BatchNormalization()(x)
+        x = Dropout(0.2)(x) 
+    # TODO: Add a TimeDistributed(Dense(output_dim)) layer
+    time_dense = TimeDistributed(Dense(output_dim))(x)
+    
+    time_dense = Dropout(0.2)(time_dense) 
+    
+    time_dense = TimeDistributed(Dense(output_dim))(time_dense)
+    
+    time_dense = Dropout(0.2)(time_dense) 
     
     # TODO: Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(time_dense)
